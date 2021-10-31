@@ -34,6 +34,38 @@ def avoid_my_neck(my_head: Dict[str, int], my_body: List[dict], possible_moves: 
     return possible_moves
 
 
+def avoid_my_body(my_head: Dict[str, int], my_body: List[dict], possible_moves: List[str]):
+  my_body = [[d['x'], d['y']] for d in my_body[1:]]
+  my_head = [value for value in my_head.values()]
+  if [my_head[0]-1, my_head[1]] in my_body:
+    if 'left' in possible_moves:
+      possible_moves.remove("left")
+  if [my_head[0]+1, my_head[1]] in my_body:
+    if 'right' in possible_moves:
+      possible_moves.remove("right")
+  if [my_head[0], my_head[1]-1] in my_body:
+    if 'down' in possible_moves:
+      possible_moves.remove("down")
+  if [my_head[0], my_head[1]+1] in my_body:
+    if 'up' in possible_moves:
+      possible_moves.remove("up")
+
+  return possible_moves
+
+
+def avoid_walls(my_head: Dict[str, int], board_height: int, board_width: int, possible_moves: List[str]) -> List[str]:
+  if my_head["x"] == 0:
+    possible_moves.remove("left")
+  if my_head["x"] == board_width - 1:
+    possible_moves.remove("right")
+  if my_head["y"] == 0:
+    possible_moves.remove("down")
+  if my_head["y"] == board_height - 1:
+    possible_moves.remove("up")
+
+  return possible_moves
+
+
 def choose_move(data: dict) -> str:
     """
     data: Dictionary of all Game Board data as received from the Battlesnake Engine.
@@ -60,11 +92,16 @@ def choose_move(data: dict) -> str:
     # Don't allow your Battlesnake to move back in on it's own neck
     possible_moves = avoid_my_neck(my_head, my_body, possible_moves)
 
-    # TODO: Using information from 'data', find the edges of the board and don't let your Battlesnake move beyond them
-    # board_height = ?
-    # board_width = ?
+    # Prevent snake from going off board
+    board_height = int(data['board']['height'])
+    board_width = int(data['board']['width'])
 
-    # TODO Using information from 'data', don't let your Battlesnake pick a move that would hit its own body
+    possible_moves = avoid_walls(my_head, board_height, board_width, possible_moves)
+
+
+    # Using information from 'data', don't let your Battlesnake pick a move that would hit its own body
+
+    possible_moves = avoid_my_body(my_head, my_body, possible_moves)
 
     # TODO: Using information from 'data', don't let your Battlesnake pick a move that would collide with another Battlesnake
 
